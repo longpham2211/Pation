@@ -1,8 +1,17 @@
-#ifdef DOCUMENT_PT
+#ifndef DOCUMENT_H
+#define DOCUMENT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include<stdio.h>
 
-void load_file(const char *file_name);
-double file_size();
+FILE *load_file(const char *file_path);
+long file_size(const char *file_path);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
