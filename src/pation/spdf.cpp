@@ -1,11 +1,10 @@
-#include "spdf.hpp"
-#include "document.h"
+
+#include "pation/document.h"
 #include <stdio.h>
 #include <string>
 
-bool check_header(const char *file_path){
-    FILE *f = load_file(file_path);
-    if ( f == NULL) {
+bool check_header(Document *doc){
+    if ( doc -> f == NULL) {
         printf("Read header failed: ERR");
         return false;
     }
@@ -25,15 +24,14 @@ bool check_header(const char *file_path){
     }
 }
 
-const std::string version_pdf(const char *file_path){
-    FILE *f = load_file(file_path);
-    if ( f == NULL) {
+const std::string version_pdf(Document *doc){
+    if ( doc -> f == NULL) {
         printf("Read header failed: ERR");
         return "ERROR WHEN LOADING PDF";
     }
     char ver[32];
     std::string version;
-    if (check_header(file_path)){
+    if (check_header(doc -> file_path)){
         char *casting = fgets(ver, sizeof(ver), f);
         if(casting != NULL) version = casting;
         else return "error while read magic byte";

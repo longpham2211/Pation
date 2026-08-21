@@ -6,9 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(app 
-    main.cpp 
-    src/document.c
-    spdf/spdf.cpp
+    src/main.cpp 
+    src/pation/document.c
     )
 
 target_include_directories(
@@ -22,4 +21,3 @@ add_custom_command(TARGET app POST_BUILD
     ${CMAKE_CURRENT_SOURCE_DIR}/data
     $<TARGET_FILE_DIR:app>/data
 )
-#mark

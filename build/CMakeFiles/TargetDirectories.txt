@@ -1,0 +1,3 @@
+/mnt/c/Pation/build/CMakeFiles/app.dir
+/mnt/c/Pation/build/CMakeFiles/edit_cache.dir
+/mnt/c/Pation/build/CMakeFiles/rebuild_cache.dir
