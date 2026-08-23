@@ -3,31 +3,43 @@
 #include"pation/document.h"
 
 
-struct pt_document{
-    FILE *f;
-    const char *file_name;
-};
-
-
-
-pt_document *pt_open_doc(const char *file_name){
-
-     pt_document *real_doc = malloc(sizeof(pt_document));
-     if (!real_doc) return NULL;
-
-     real_doc->file_name = doc->file_name;
-     
-     real_doc->f = fopen(real_doc->file_name, "rb");
-     if(real_doc->f == NULL){
-        return NULL;
-     }
-     
-     fseek(real_doc->f, 0, SEEK_END);
-     long file_size = ftell(real_doc->f);
-     
-     printf("Dung luong cua file la: %ld", file_size);
-     
-     return real_doc;
+long check_size (pt_document *doc){ 
+      if ( doc -> f == NULL ){
+          printf("ERR WHILE CHECK FILE\n");
+          return -1;
+      }
+      fseek(doc -> f, 0, SEEK_END);
+      doc -> size = ftell(doc -> f);
+      fseek(doc -> f, 0, SEEK_SET);
+      return doc -> size;
 }
 
 
+void close_doc(pt_document *doc){
+    if ( doc != NULL ){
+        if ( doc -> f != NULL ) {
+            fclose(doc->f);
+        }
+    }
+    free(doc);
+}
+
+
+pt_document *pt_open_doc(const char *file){
+    pt_document *doc = (pt_document*)malloc(sizeof(*doc));
+    if ( doc == NULL ){
+        printf("No enough space\n");
+        free(doc);
+        return NULL;
+    }
+    doc -> f = fopen(file, "rb");
+    if ( doc -> f == NULL ){
+        printf("ERR WITH CONSTRUCTOR\n");
+        return NULL;
+    }
+    doc -> file_name = file;
+    doc -> size = -1;
+    doc -> close = close_doc;
+    doc -> check_size = check_size;
+    return doc;
+}

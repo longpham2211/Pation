@@ -1,20 +1,30 @@
 #ifndef DOCUMENT_H
 #define DOCUMENT_H
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include<stdio.h>
 
-//struct pt_document
-typedef struct pt_document pt_docment;
+  //struct pt_document
+typedef struct pt_document pt_document;
+  
+  // func pointer
+typedef void (close_fn) (pt_document *doc);
+typedef long (size_fn) (pt_document *doc);
+
+  // Constructor
+pt_document *pt_open_doc(const char *file);
 
 
-// func pt_document
+struct pt_document {
+    FILE *f;
+    const char *file_name;
+    long size;
+    close_fn *close;
+    size_fn *check_size;
+};
 
-pt_document *pt_open_doc(const char *file_name);
-void *pt_close_doc(pt_document *doc);
 
 #ifdef __cplusplus
 }

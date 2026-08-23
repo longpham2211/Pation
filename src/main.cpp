@@ -3,8 +3,10 @@
 using namespace std;
 
 int main () {
-    pt_document *doc = NULL;
-    doc = pt_open_doc("../data/test.pdf");
+    pt_document *doc = pt_open_doc("../data/test.pdf");
+    long size = doc -> check_size(doc);
+    cout << "File size is: " << size << "\n";
+    doc -> close(doc);
     return 0;
 }
 
