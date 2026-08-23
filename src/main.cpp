@@ -6,6 +6,8 @@ int main () {
     pt_document *doc = pt_open_doc("../data/test.pdf");
     long size = doc -> check_size(doc);
     cout << "File size is: " << size << "\n";
+    char *header = doc -> check_header(doc);
+    printf("Version of pdf is: %s\n");
     doc -> close(doc);
     return 0;
 }

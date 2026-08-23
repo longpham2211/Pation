@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include"pation/document.h"
-
+#include<string.h>
 
 long check_size (pt_document *doc){ 
       if ( doc -> f == NULL ){
@@ -14,6 +14,23 @@ long check_size (pt_document *doc){
       return doc -> size;
 }
 
+char *header (pt_document *doc){ 
+      if ( doc -> f == NULL ){
+          fclose(doc -> f);
+          free(doc);
+          return "ERR WHILE LOAD PDF";
+      }
+      char need_byte[32];
+      char *magic_byte_and_header = fgets(need_byte, sizeof(need_byte), doc -> f);
+      char *header; 
+      if (need_byte != NULL ) header = magic_byte_and_header;
+      else return "An error occurred. (header_fn) \n";
+      char version[4];
+      strncpy(version, header + 5, 3);
+      version[3] = '\0';
+      doc -> header_pdf = version;
+      return version;
+}
 
 void close_doc(pt_document *doc){
     if ( doc != NULL ){
@@ -41,5 +58,6 @@ pt_document *pt_open_doc(const char *file){
     doc -> size = -1;
     doc -> close = close_doc;
     doc -> check_size = check_size;
+    doc -> check_header = header;
     return doc;
 }
