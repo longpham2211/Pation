@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 #include<stdio.h>
-
+#include<stdbool.h>
   //struct pt_document
 typedef struct pt_document pt_document;
   
@@ -13,6 +13,7 @@ typedef struct pt_document pt_document;
 typedef void (close_fn) (pt_document *doc);
 typedef long (size_fn) (pt_document *doc);
 typedef char *(header_fn) (pt_document *doc);
+typedef bool (is_valid_pdf_fn) (pt_document *doc);
   // Constructor
 pt_document *pt_open_doc(const char *file);
 
@@ -22,14 +23,16 @@ struct pt_document {
     const char *file_name;
     long size;
     char header_pdf[4];
+    // func IO
     close_fn *close;
+
+    // func checking pdf
     size_fn *check_size;
     header_fn *check_header;
+    is_valid_pdf_fn *check_magic_byte;
 };
-
 
 #ifdef __cplusplus
 }
 #endif
-
 #endif

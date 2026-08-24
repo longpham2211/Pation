@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include"pation/document.h"
 #include<string.h>
+#include<stdbool.h>
 
 long check_size (pt_document *doc){ 
       if ( doc -> f == NULL ){
@@ -14,6 +15,20 @@ long check_size (pt_document *doc){
       return doc -> size;
 }
 
+bool is_valid_file(pt_document *doc){
+      if (doc -> f == NULL ) {
+          printf("ERR WHILE CHECKING VALID PDF\n");
+          free(doc);
+          return false;
+      }
+      char header[9];
+      char *is_pdf = fgets(header, sizeof(header), doc -> f);
+      if (*is_pdf != '%PDF'){
+        return false;
+      }
+      return true;
+}
+
 char *header (pt_document *doc){ 
       if ( doc -> f == NULL ){ 
           free(doc);
@@ -24,7 +39,7 @@ char *header (pt_document *doc){
       if ( fgets (need_byte, sizeof(need_byte), doc -> f) != NULL ) header = need_byte;
       else return "an occurr error\n";
       strncpy(doc -> header_pdf, header + 5, 3);
-      doc -> header_pdf[3] = '\0';
+      doc -> header_pdf[3] = '\0';  
       fseek(doc -> f, 0, SEEK_SET);
       return doc -> header_pdf;
 }
