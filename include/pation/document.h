@@ -21,7 +21,7 @@ struct pt_document {
     FILE *f;
     const char *file_name;
     long size;
-    char *header_pdf;
+    char header_pdf[4];
     close_fn *close;
     size_fn *check_size;
     header_fn *check_header;

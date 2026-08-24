@@ -15,21 +15,18 @@ long check_size (pt_document *doc){
 }
 
 char *header (pt_document *doc){ 
-      if ( doc -> f == NULL ){
-          fclose(doc -> f);
+      if ( doc -> f == NULL ){ 
           free(doc);
           return "ERR WHILE LOAD PDF";
       }
-      char need_byte[32];
-      char *magic_byte_and_header = fgets(need_byte, sizeof(need_byte), doc -> f);
-      char *header; 
-      if (need_byte != NULL ) header = magic_byte_and_header;
-      else return "An error occurred. (header_fn) \n";
-      char version[4];
-      strncpy(version, header + 5, 3);
-      version[3] = '\0';
-      doc -> header_pdf = version;
-      return version;
+      char need_byte[9];
+      char *header;
+      if ( fgets (need_byte, sizeof(need_byte), doc -> f) != NULL ) header = need_byte;
+      else return "an occurr error\n";
+      strncpy(doc -> header_pdf, header + 5, 3);
+      doc -> header_pdf[3] = '\0';
+      fseek(doc -> f, 0, SEEK_SET);
+      return doc -> header_pdf;
 }
 
 void close_doc(pt_document *doc){
