@@ -18,20 +18,24 @@ long check_size (pt_document *doc){
 bool is_valid_file(pt_document *doc){
       if (doc -> f == NULL ) {
           printf("ERR WHILE CHECKING VALID PDF\n");
-          free(doc);
           return false;
       }
       char header[9];
       char *is_pdf = fgets(header, sizeof(header), doc -> f);
-      if (*is_pdf != '%PDF'){
-        return false;
+      char magic_byte[]  = "%PDF";
+      
+      if (is_pdf == NULL) return false;
+      for ( int i = 0; i < strlen(magic_byte); i++){
+             if ( is_pdf[i] != magic_byte[i] ){
+              return false;
+             }
       }
+      fseek(doc->f, 0, SEEK_SET);
       return true;
 }
 
 char *header (pt_document *doc){ 
       if ( doc -> f == NULL ){ 
-          free(doc);
           return "ERR WHILE LOAD PDF";
       }
       char need_byte[9];
@@ -58,7 +62,6 @@ pt_document *pt_open_doc(const char *file){
     pt_document *doc = (pt_document*)malloc(sizeof(*doc));
     if ( doc == NULL ){
         printf("No enough space\n");
-        free(doc);
         return NULL;
     }
     doc -> f = fopen(file, "rb");
@@ -71,5 +74,6 @@ pt_document *pt_open_doc(const char *file){
     doc -> close = close_doc;
     doc -> check_size = check_size;
     doc -> check_header = header;
+    doc -> check_magic_byte = is_valid_file; 
     return doc;
 }

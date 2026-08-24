@@ -8,7 +8,7 @@ int main () {
     cout << "File size is: " << size << "\n";
     char *header = doc -> check_header(doc);
     printf("Version of pdf is: %s\n", header);
-    bool is_pdf = doc -> check_magic_byte;
+    bool is_pdf = doc -> check_magic_byte(doc);
     if ( is_pdf ) printf("Valid PDF\n");
     else printf("invalid pdf\n");
     doc -> close(doc);
