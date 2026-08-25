@@ -5,7 +5,7 @@ using namespace std;
 
 int main () {
 #ifdef _WIN32
-    pt_document *doc = pt_open_doc("C:\\Pation\\data\\test.pdf");
+    pt_document *doc = pt_open_doc("F:\\Pation\\data\\a.pdf");
 #elif __APPLE__
     pt_document *doc = pt_open_doc("../data/test.pdf");
 #else
@@ -19,7 +19,7 @@ int main () {
     bool is_pdf = doc -> check_magic_byte(doc);
     if ( is_pdf ) printf("Valid PDF\n");
     else printf("invalid pdf\n");
-    char *xref = structure -> find(doc, structure) ;
+    long xref = structure -> find(doc, structure) ;
     printf("DEBUG: %s\n", xref);
     doc -> close(doc);
     return 0;

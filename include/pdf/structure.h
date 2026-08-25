@@ -16,7 +16,7 @@ pt_structure *init_pt_structure(pt_document *doc);
 
 
 // func
-typedef char *(find_xref) (pt_document *doc, pt_structure *structure);
+typedef long (find_xref) (pt_document *doc, pt_structure *structure);
 typedef size_t (count_page) (pt_document *doc, pt_structure *structure);
 
 

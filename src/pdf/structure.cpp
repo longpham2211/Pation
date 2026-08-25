@@ -8,15 +8,21 @@
 #include "pation/document.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 
-
-char *find_xref_table (pt_document *doc, pt_structure *structure){
-    if( doc -> f == NULL ) return "NO (find_xref)\n";
-    
-    char jump[6];
+long find_xref_table (pt_document *doc, pt_structure *structure){
+    if ( doc -> f == NULL ) return -1;
+    fseek(doc -> f, 0, SEEK_SET);
     fseek(doc -> f, 0, SEEK_END);
-    fgets(jump ,sizeof(jump), doc -> f);
-    printf("JUMP to: %s\n", jump);
+    long size = ftell(doc -> f);
+    printf("size is: %ld\n", size);
+    long byte_need_to_read = size - 1024;
+    char eof[byte_need_to_read];
+    char *content_eof = "";
+    if(fgets(eof, sizeof(eof), doc -> f) != NULL) return -1;
+    content_eof = eof;
+    printf("CONTENT OF OEF: %s\n", byte_need_to_read);
+    return size;
 }
 
 
@@ -31,5 +37,6 @@ pt_structure *init_pt_structure(pt_document *doc){
     }
     structure -> page = 0;
     structure -> find = find_xref_table;
+    return structure;
 }
 
