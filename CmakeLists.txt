@@ -8,7 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(app 
     src/main.cpp 
     src/pation/document.c
-    )
+    src/pdf/structure.c
+  )
 
 target_include_directories(
     app PRIVATE

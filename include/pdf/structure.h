@@ -6,13 +6,13 @@ extern "C"{
 #endif
 
 #include <stdio.h>
-
+#include "pation/document.h"
 // Struct of page
 typedef struct pt_structure pt_structure;
 
 
 // Constuctor 
-pt_structure *pt_structure(pt_document *doc);
+pt_structure *init_pt_structure(pt_document *doc);
 
 
 // func
