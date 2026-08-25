@@ -5,7 +5,7 @@ using namespace std;
 
 int main () {
 #ifdef _WIN32
-    pt_document *doc = pt_open_doc("F:\\Pation\\data\\a.pdf");
+    pt_document *doc = pt_open_doc("C:\\Pation\\data\\a.pdf");
 #elif __APPLE__
     pt_document *doc = pt_open_doc("../data/test.pdf");
 #else
