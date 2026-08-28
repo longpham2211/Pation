@@ -5,7 +5,7 @@ using namespace std;
 
 int main () {
 #ifdef _WIN32
-    pt_document *doc = pt_open_doc("C:\\Pation\\data\\test.pdf");
+    pt_document *doc = pt_open_doc("E:\\Pation\\data\\test.pdf");
 #elif __APPLE__
     pt_document *doc = pt_open_doc("../data/test.pdf");
 #else
@@ -21,7 +21,10 @@ int main () {
     else printf("invalid pdf\n");
     long xref = structure -> find(doc, structure) ;
     printf("Byte offset of xref table: %ld\n", xref);
+    int parse_xref = structure -> parse(doc, structure);
+    printf("first 4 byte: %d\n", parse_xref);
     doc -> close(doc);
+    structure -> close(structure);
     return 0;
 }
 

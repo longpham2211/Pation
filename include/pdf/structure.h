@@ -19,6 +19,7 @@ pt_structure *init_pt_structure(pt_document *doc);
 typedef long (find_xref_fn) (pt_document *doc, pt_structure *structure);
 typedef size_t (count_page_fn) (pt_document *doc, pt_structure *structure);
 typedef void (close_structure_fn) (pt_structure *structure);
+typedef int (parse_xref_fn) (pt_document *doc, pt_structure *structure);
 
 struct pt_structure{
     long start_xref;
@@ -27,7 +28,7 @@ struct pt_structure{
     //vtable func
     close_structure_fn *close;
     find_xref_fn *find;
-
+    parse_xref_fn *parse;
 };
 
 
