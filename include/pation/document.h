@@ -6,16 +6,17 @@ extern "C" {
 
 #include<stdio.h>
 #include<stdbool.h>
+#include "pation/context.h"
   //struct pt_document
 typedef struct pt_document pt_document;
   
   // func pointer
 typedef void (close_fn) (pt_document *doc);
-typedef long (size_fn) (pt_document *doc);
-typedef char *(header_fn) (pt_document *doc);
-typedef bool (is_valid_pdf_fn) (pt_document *doc);
+typedef long (size_fn) (pt_context *ctx, pt_document *doc);
+typedef char *(header_fn) (pt_context *ctx, pt_document *doc);
+typedef bool (is_valid_pdf_fn) (pt_context *ctx, pt_document *doc);
   // Constructor
-pt_document *pt_open_doc(const char *file);
+pt_document *pt_open_doc(pt_context *ctx, const char *file);
 
 
 struct pt_document {

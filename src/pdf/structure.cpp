@@ -3,103 +3,128 @@
     ALLRIGHTS RESERVED
 */
 
-
+#include "pation/context.h"
 #include "pdf/structure.h"
 #include "pation/document.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
 #include <iostream>
-#include <regex>
+#include <unordered_map>
 
-
-
-
-long find_xref_table (pt_document *doc, pt_structure *structure){
-    if (doc->f == NULL ) return -1;
-    fseek(doc->f, -1024, SEEK_END);
-
+// to do need to improve the algorithm  
+long find_xref_table (pt_context *ctx, pt_document *doc, pt_structure *structure){
+    if (doc->f == NULL ){
+        return ctx->sys_err = PT_SYS_IO;
+    }
+    
+    if(fseek(doc->f, -1024, SEEK_END) != 0) return ctx->sys_err = PT_SYS_IO;
+    // old xref table
     char buffer[1024];
-    size_t byte_read = fread(buffer, 1, 1024, doc -> f);
-    if ( byte_read == 0 ) return -1;
-    // parse xref
-    std::string content(buffer, byte_read);
-    size_t startContent = content.find("startxref");
-    size_t endContent = content.find("%%EOF", startContent);
-    std::string xref = content.substr(startContent, endContent - startContent);
-    size_t find_byte_offset = xref.rfind("f");
-    std::string byte_offset_string = xref.substr(find_byte_offset + 1);
-    long byte_offset = std::stol(byte_offset_string);
-    structure -> start_xref = byte_offset;
+    size_t size_buffer = sizeof(buffer);
+    if (fread(buffer, 1, sizeof(buffer), doc->f) < size_buffer) return ctx->sys_err = PT_SYS_IO;
+
+    std::string raw_byte(buffer, sizeof(buffer));
+    size_t start_rb = raw_byte.rfind("startxref");
+    if(start_rb == std::string::npos) return ctx->doc_err = PT_DOC_FUNC;
+    std::string old_xref = raw_byte.substr(start_rb + 9);
+    long old_xref_table = std::stol(old_xref); 
+    structure->start_xref = old_xref_table; 
     return structure->start_xref;
+    // to do with new xref;
 }
 
 
 
 
-
-int xref (pt_document *doc, pt_structure *structure){
-  fseek(doc->f, 0, SEEK_SET);
-  fseek(doc->f, structure->start_xref, SEEK_SET);
+bool is_valid_xref (pt_context *ctx, pt_document *doc, pt_structure *structure){
+  if (fseek(doc->f, 0, SEEK_SET) != 0) return false;
+  if(fseek(doc->f, structure->start_xref, SEEK_SET) != 0) return false;
   char content[4];
-  if (fread(content, 1, 4, doc -> f) == 0) return -1;
+  if (fread(content, 1, 4, doc -> f) == 0) return false;
 
-
-  std::string need_content = static_cast<std::string>(content);
+  std::string need_content(content, 4);
   size_t start_pos = need_content.find("xref");
-  std::string xref_chain = need_content.substr(start_pos, 4);
-
-
-  std::cout << "content is: " << xref_chain << "\n";
+  std::string xref_chain = need_content.substr(start_pos, 4); 
   std::string pattern = "xref";
-
-
   for ( int i = 0; i < xref_chain.length(); i++){
     if (xref_chain[i] != pattern[i]){
-      return -1;
+      return false;
     }
   }
+    
+  int object, entry;
+  if (fscanf(doc->f, "%d %d", &object, &entry) != 2) return false;
+  long locate_byte = ftell(doc->f);
+  structure->xref_data_offset = locate_byte;
+  structure->base_obj = object; 
+  structure->total_entries = entry;
 
-  char object[2];
-  if(fread(object, 1, 2, doc->f) == 0) return -1;
-  std::string object_chain = static_cast<std::string>(object);
-
-
-
-  int first_object = std::stol(object_chain);
-  printf("The first object is: %d\n", first_object);
- 
-
-  char entry[3];
-  if(fread(entry, 1, 3, doc->f) == 0) return -1;
-  std::string entry_chain = static_cast<std::string>(entry);
-  int first_entry = std::stol(entry_chain);
-  printf("the first entry is: %d\n", first_entry);
-
-
-
-  return 1;
+  //just testing the func pls donot attention this return value
+  return true;
 }
+
+
+
+int dictionary_xref (pt_context *ctx, pt_document *doc, pt_structure *structure) {
+    structure->lookup = (dictionary_xref_lookup*)malloc(structure->total_entries * sizeof(dictionary_xref_lookup));
+    if(structure->lookup == NULL) return ctx->sys_err = PT_SYS_MEM;
+
+    if (is_valid_xref(ctx, doc, structure) == false) return ctx->doc_err = PT_DOC_FUNC;
+    
+    if(fseek(doc->f, 0, SEEK_SET) != 0) return ctx->sys_err = PT_SYS_IO;
+    if(fseek(doc->f, structure->xref_data_offset, SEEK_SET) != 0) return ctx->sys_err = PT_SYS_IO;
+    // old xref 
+    for (int i = structure->base_obj; i < structure->total_entries; i++){
+        long offset;
+        int gen;
+        char status;
+        if (fscanf(doc->f, "%ld %d %c", &offset, &gen, &status) == 3){ 
+            structure->lookup[i].obj_id = structure->base_obj + 1;
+            structure->lookup[i].byte_offset = offset;
+            structure->lookup[i].gen_num = gen;
+            structure->lookup[i].status_obj = status;
+            printf("Obj: %d | Offset: %ld | Status: %c\n", structure->base_obj + i, offset, status);
+        }
+        else {
+            return -1;
+        }
+    }
+    structure->ptr_end_xref = ftell(doc->f);
+    std::cout << "end xref: " << structure->ptr_end_xref << "\n";
+    // new xref 
+    return 1;
+}
+
 
 
 
 // close constructor
 void close_structure(pt_structure *structure){
-    free(structure); 
+    if (structure != NULL) {
+        if (structure->lookup != NULL){
+            free(structure->lookup);
+         }
+         free(structure);
+    }
 }
 
 // constuctor
-pt_structure *init_pt_structure(pt_document *doc){
-    if ( doc == NULL ) return NULL;
+pt_structure *init_pt_structure(pt_context *ctx, pt_document *doc){
+    if ( doc == NULL ) {
+        ctx->sys_err = PT_SYS_IO;
+        return NULL;
+    }
     pt_structure *structure = (pt_structure*)malloc(sizeof(*structure));
     if (structure == NULL) {
-        printf("NO ENOUGH SPACE WHEN mALLOC STRUCTURE\n");
+        ctx->sys_err = PT_SYS_MEM;
         return NULL;
     }
     structure -> page = 0;
     structure -> find = find_xref_table;
     structure -> close = close_structure;
-    structure -> parse = xref;
+    structure -> parse = is_valid_xref;
+    structure -> dictionary = dictionary_xref;
     return structure;
 }
 
