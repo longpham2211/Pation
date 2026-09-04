@@ -25,8 +25,9 @@ typedef size_t (count_page_fn) (pt_context *ctx, pt_document *doc, pt_structure 
 typedef void (close_structure_fn) (pt_structure *structure);
 typedef bool (is_valid_xref_fn) (pt_context *ctx, pt_document *doc, pt_structure *structure);
 typedef int (dictionary_xref_fn) (pt_context *ctx, pt_document *doc, pt_structure *structure);
-
-
+typedef int (parse_trailer_fn) (pt_context *ctx, pt_document *doc, pt_structure *structure);
+typedef int (main_pation_fn) (pt_context *ctx, pt_document *doc, pt_structure *structure);
+typedef long (lookup_offset_fn) (pt_context *ctx, pt_structure *structure, int target_obj);
 
 // dictionary
 typedef struct {
@@ -34,7 +35,7 @@ typedef struct {
   long byte_offset;
   int gen_num;
   char status_obj;
-}dictionary_xref_lookup;
+}dictionary_xref_lookup; // --> lookup pointer
 
 
 struct pt_structure{
@@ -44,7 +45,6 @@ struct pt_structure{
 
     size_t page;
 
-    
     int base_obj, total_entries; 
     long xref_data_offset; // xref table exclude obj && ent
 
@@ -54,8 +54,8 @@ struct pt_structure{
     is_valid_xref_fn *parse;
     dictionary_xref_fn *dictionary; 
     dictionary_xref_lookup *lookup;
-    
-
+    parse_trailer_fn *trailer;
+    main_pation_fn *main;
 };
 
 #ifdef __cplusplus

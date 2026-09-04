@@ -13,7 +13,10 @@ int main () {
 #else
     pt_document *doc = pt_open_doc(ctx,"../data/test.pdf");
 #endif
-    pt_structure *structure = init_pt_structure(ctx, doc);  
+    pt_structure *structure = init_pt_structure(ctx, doc);
+    if (ctx == NULL || doc == NULL || structure == NULL){
+        return 0;
+    }
     long size = doc -> check_size(ctx,doc);
     cout << "File size is: " << size << "\n";
     char *header = doc -> check_header(ctx,doc);
@@ -28,9 +31,8 @@ int main () {
       printf("valid pdf\n");
     }
     else printf("Invalid pdf\n");
-    int dictionary = structure-> dictionary(ctx, doc, structure);
-    printf("dictionary xref: %d\n", dictionary);
-    printf("Byte offset of xref table: %ld\n", xref);
+    int main = structure -> main(ctx, doc, structure);
+    std::cout << "--- MAIN ---\n" << main << "\n";
     doc -> close(doc);
     structure -> close(structure);
     ctx -> free(ctx);

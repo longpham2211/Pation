@@ -12,6 +12,8 @@
 #include <iostream>
 #include <unordered_map>
 
+
+
 // to do need to improve the algorithm  
 long find_xref_table (pt_context *ctx, pt_document *doc, pt_structure *structure){
     if (doc->f == NULL ){
@@ -36,12 +38,11 @@ long find_xref_table (pt_context *ctx, pt_document *doc, pt_structure *structure
 
 
 
-
 bool is_valid_xref (pt_context *ctx, pt_document *doc, pt_structure *structure){
   if (fseek(doc->f, 0, SEEK_SET) != 0) return false;
   if(fseek(doc->f, structure->start_xref, SEEK_SET) != 0) return false;
   char content[4];
-  if (fread(content, 1, 4, doc -> f) == 0) return false;
+  if (fread(content, 1, 4, doc -> f) < 1024) return false;
 
   std::string need_content(content, 4);
   size_t start_pos = need_content.find("xref");
@@ -64,7 +65,13 @@ bool is_valid_xref (pt_context *ctx, pt_document *doc, pt_structure *structure){
   return true;
 }
 
-
+long lookup_offset (pt_context *ctx, pt_structure *structure, int target_obj){
+    int index = target_obj - structure->base_obj;
+    if(index < 0 || index > structure->total_entries){
+        return ctx->sys_err = PT_DOC_FUNC; 
+    }
+    return structure->lookup[index].byte_offset;
+}
 
 int dictionary_xref (pt_context *ctx, pt_document *doc, pt_structure *structure) {
     structure->lookup = (dictionary_xref_lookup*)malloc(structure->total_entries * sizeof(dictionary_xref_lookup));
@@ -84,20 +91,44 @@ int dictionary_xref (pt_context *ctx, pt_document *doc, pt_structure *structure)
             structure->lookup[i].byte_offset = offset;
             structure->lookup[i].gen_num = gen;
             structure->lookup[i].status_obj = status;
-            printf("Obj: %d | Offset: %ld | Status: %c\n", structure->base_obj + i, offset, status);
+            // printf("Obj: %d | Offset: %ld | Status: %c\n", structure->base_obj + i, offset, status);
         }
         else {
-            return -1;
+            return ctx->sys_err = PT_SYS_IO;
         }
     }
     structure->ptr_end_xref = ftell(doc->f);
     std::cout << "end xref: " << structure->ptr_end_xref << "\n";
     // new xref 
-    return 1;
+    return structure->ptr_end_xref;
 }
 
 
 
+
+
+int parse_trailer(pt_context *ctx, pt_document *doc, pt_structure *structure){
+    if(doc->f == NULL){
+        return ctx->sys_err = PT_SYS_IO;
+    } 
+    if (fseek(doc->f, -1024, SEEK_END) != 0 ) return ctx->sys_err = PT_SYS_IO;
+    char buffer[1024];
+    if(fread(buffer, 1, 1024, doc->f) < 1024) return ctx->sys_err = PT_SYS_IO;
+    char *raw_trailer = buffer;
+    std::string trailer(raw_trailer, 1024);
+    std::string pattern = "/Root";
+    
+    return ctx->sys_err = PT_SYS_OK;
+}
+
+
+
+
+int main_function (pt_context *ctx, pt_document *doc, pt_structure *structure){
+    int a = parse_trailer(ctx, doc, structure);
+    int b = dictionary_xref(ctx, doc, structure);
+    return ctx->sys_err = PT_SYS_OK;
+}
 
 // close constructor
 void close_structure(pt_structure *structure){
@@ -125,6 +156,8 @@ pt_structure *init_pt_structure(pt_context *ctx, pt_document *doc){
     structure -> close = close_structure;
     structure -> parse = is_valid_xref;
     structure -> dictionary = dictionary_xref;
+    structure -> trailer =  parse_trailer;
+    structure -> main= main_function;
     return structure;
 }
 
