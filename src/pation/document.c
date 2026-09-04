@@ -3,6 +3,7 @@
 #include"pation/document.h"
 #include<string.h>
 #include<stdbool.h>
+#include<math.h>
 
 long check_size (pt_context *ctx, pt_document *doc){ 
     if ( doc -> f == NULL ){
@@ -49,8 +50,12 @@ char *header (pt_context *ctx, pt_document *doc){
     if (fgets(need_byte, sizeof(need_byte), doc -> f) != NULL ) header = need_byte;
     else return "an occurr error\n (header_fn) -document.c";
     strncpy(doc -> header_pdf, header + 5, 3);
-    doc -> header_pdf[3] = '\0';  
+    doc -> header_pdf[3] = '\0';
     if (fseek(doc -> f, 0, SEEK_SET) != 0) return "err (header_fn) - document.c";
+    const char *header_cp = doc->header_pdf;
+    char *endptr;
+    // strtod convert it to double type
+    double version_now = strtod(header_cp, &endptr);
     return doc -> header_pdf;
 }
 

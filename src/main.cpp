@@ -7,7 +7,7 @@ using namespace std;
 int main () {
     pt_context *ctx = pt_ctx_create();
 #ifdef _WIN32
-    pt_document *doc = pt_open_doc(ctx,"C:\\Pation\\data\\a.pdf");
+    pt_document *doc = pt_open_doc(ctx,"E:\\Pation\\data\\a.pdf");
 #elif __APPLE__
     pt_document *doc = pt_open_doc(ctx,"../data/test.pdf");
 #else
@@ -26,11 +26,12 @@ int main () {
     else printf("invalid pdf\n");
     long xref = structure -> find(ctx, doc, structure) ;
     printf("Byte offset of xref table: %ld\n", xref);
-    bool parse_xref = structure -> parse(ctx, doc, structure);
+    // rename pointer for easy to recognize
+    bool parse_xref = structure -> is_valid_xref(ctx, doc, structure);
     if (parse_xref){
-      printf("valid pdf\n");
+      printf("valid xref\n");
     }
-    else printf("Invalid pdf\n");
+    else printf("Invalid xref\n");
     int main = structure -> main(ctx, doc, structure);
     std::cout << "--- MAIN ---\n" << main << "\n";
     doc -> close(doc);

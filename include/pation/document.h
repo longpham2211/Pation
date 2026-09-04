@@ -3,7 +3,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#include<stdint.h>
 #include<stdio.h>
 #include<stdbool.h>
 #include "pation/context.h"
@@ -23,6 +23,7 @@ struct pt_document {
     FILE *f;
     const char *file_name;
     long size;
+    double version_pdf;
     char header_pdf[4];
     // func IO
     close_fn *close;

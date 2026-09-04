@@ -27,6 +27,7 @@ typedef enum {
     PT_DOC_OK = 0,
     PT_DOC_INVALID,
     PT_DOC_FUNC,
+    PT_DOC_VAL,
     PT_DOC_FORMAT,
     PT_DOC_SYNTAX,
     PT_DOC_UNSUPPORTED, 

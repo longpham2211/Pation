@@ -28,6 +28,7 @@ typedef int (dictionary_xref_fn) (pt_context *ctx, pt_document *doc, pt_structur
 typedef int (parse_trailer_fn) (pt_context *ctx, pt_document *doc, pt_structure *structure);
 typedef int (main_pation_fn) (pt_context *ctx, pt_document *doc, pt_structure *structure);
 typedef long (lookup_offset_fn) (pt_context *ctx, pt_structure *structure, int target_obj);
+typedef int (jump_to_root_object_fn) (pt_context *ctx, pt_document *doc, pt_structure *structure);
 
 // dictionary
 typedef struct {
@@ -41,7 +42,8 @@ typedef struct {
 struct pt_structure{
     long start_xref;
     long ptr_end_xref;
-
+    int root_obj;   
+    int root_gen_num;
 
     size_t page;
 
@@ -51,11 +53,13 @@ struct pt_structure{
     //vtable func
     close_structure_fn *close;
     find_xref_fn *find;
-    is_valid_xref_fn *parse;
+    is_valid_xref_fn *is_valid_xref;
     dictionary_xref_fn *dictionary; 
     dictionary_xref_lookup *lookup;
     parse_trailer_fn *trailer;
+    jump_to_root_object_fn *jump;
     main_pation_fn *main;
+
 };
 
 #ifdef __cplusplus
