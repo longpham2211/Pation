@@ -68,7 +68,7 @@ bool is_valid_xref (pt_context *ctx, pt_document *doc, pt_structure *structure){
 long lookup_offset (pt_context *ctx, pt_structure *structure, int target_obj){
     int index = target_obj - structure->base_obj;
     if(index < 0 || index > structure->total_entries){
-        return ctx->sys_err = PT_DOC_FUNC; 
+        return ctx->doc_err = PT_DOC_FUNC;
     }
     return structure->lookup[index].byte_offset;
 }
