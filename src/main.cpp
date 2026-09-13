@@ -1,29 +1,42 @@
-#include<iostream>
-#include "pation/document.h"
+#include <iostream>
 #include "pdf/xref.h"
+#include "pation/document.h"
+#include "pdf/page.h"
+#include "pdf/xref.h"
+#include "pdf/parser.h"
 #include "pation/context.h"
 using namespace std;
 
-int main () {
-    pt_context *ctx = pt_ctx_create();
-    pt_state *st = pt_init_state();
-#ifdef __WIN32
-    ctx->file->file_name = "C:\\pation\\data\\a.pdf";
-#elif __APPLE__
-    ctx->file->file_name = "../data/a.pdf";
-#else
-    ctx->file->file_name = "../data/a.pdf";
-#endif
-    if( ctx == NULL || st == NULL){
-        ctx->message = "main.cpp __LINE__";
-        st  ->free(st);
-        ctx ->free(ctx);
-    }
-    main_doc(ctx, st);
-    int a = st->xref->call(ctx, st);
-    std::cout << "SUCCESS" << "\n";
-    st  ->free(st);
-    ctx ->free(ctx); 
-    return 0;
+pt_state* pt_load_pdf(pt_context *ctx, const char *filepath) {
+    ctx->file->file_name = filepath;
+    
+    pt_state *st = pt_init_state(ctx);
+    if (!st) return NULL;
+    
+    st->doc->check_magic_byte(ctx, st);
+    if (st->xref) {
+        st->xref->find(ctx, st);
+        int e = st->xref->dictionary(ctx, st);
+        if (e) printf("XREF dictionary built successfully!\n");
+        else printf("XREF dictionary failed!\n");
+        st->xref->trailer(ctx, st); 
+    } 
+    return st; 
 }
 
+int main () {
+    pt_context *ctx = pt_ctx_create();
+#ifdef __WIN32
+    const char *filepath = "C:\\pation\\data\\a.pdf";
+#else
+    const char *filepath = "../data/a.pdf";
+#endif
+    pt_state *st = pt_load_pdf(ctx, filepath);
+    
+    if (st && st->page) {
+        st->page->scan(ctx, st);
+    }
+    if (st) st->free(st);
+    ctx->free(ctx); 
+    return 0;
+}

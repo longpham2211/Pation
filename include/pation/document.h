@@ -17,9 +17,8 @@ typedef long (size_fn) (pt_context *ctx, pt_state *st);
 typedef double (version_fn) (pt_context *ctx, pt_state *st);
 typedef bool (is_valid_pdf_fn) (pt_context *ctx, pt_state *st);
 typedef void (main_doc_fn) (pt_context *ctx, pt_state *st);
+// debug
 void main_doc (pt_context *ctx, pt_state *st);
-
-
 
 struct pt_document {
     FILE *f;

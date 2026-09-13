@@ -31,7 +31,7 @@ typedef enum {
     PT_SYS_OK = 0,
     PT_SYS_IO,
     PT_SYS_MEM, 
-    PT_SYS_PERMISSON,   
+    PT_SYS_PERMISSION,
 }pt_sys_err;
 
 typedef enum {

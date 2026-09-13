@@ -22,7 +22,10 @@ typedef int (dictionary_xref_fn) (pt_context *ctx, pt_state *st);
 typedef int (parse_trailer_fn) (pt_context *ctx, pt_state *st);
 typedef long (lookup_offset_fn) (pt_context *ctx, pt_state *st, int target_obj);
 typedef int (jump_to_root_object_fn) (pt_context *ctx, pt_state *st);
-typedef int (caller_fn) (pt_context *ctx, pt_state *st);
+// debug
+void main_xref(pt_state *st);
+
+
 // main
 typedef void (main_xref_fn) (pt_state *st);
 void main_xref (pt_state *st);
@@ -50,9 +53,9 @@ struct pdf_xref{
     is_valid_xref_fn *is_valid_xref;
     dictionary_xref_fn *dictionary; 
     dictionary_xref_lookup *lookup;
+    lookup_offset_fn *look;
     parse_trailer_fn *trailer;
     jump_to_root_object_fn *jump;
-    caller_fn *call;
     main_xref_fn *main;
 
 };

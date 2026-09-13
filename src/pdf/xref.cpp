@@ -71,8 +71,7 @@ bool valid_xref (pt_context *ctx, pt_state *st){
     }
     
 
-    // try catch xref again fuck you microsoft 
-    // this handler intended for bitch word to pdf
+    // try catch xref again 
     if (entry == 0) {
         ctx->file->seek(ctx, ctx->file->f, 0, PT_SEEK_END);
         long read_size = (size < 1024) ? size : 1024;
@@ -146,7 +145,7 @@ int dictionary_xref (pt_context *ctx, pt_state *st) {
             st->xref->lookup[i].byte_offset = offset;
             st->xref->lookup[i].gen_num     = gen;
             st->xref->lookup[i].status_obj  = status;
-            printf("Obj: %d | Offset: %ld | Status: %c\n", st->xref->base_obj + i, offset, status);
+            //printf("Obj: %d | Offset: %ld | Status: %c\n", st->xref->base_obj + i, offset, status);
         }
         else {
             return ctx->sys_err = PT_SYS_IO;
@@ -185,7 +184,7 @@ int parse_trailer(pt_context *ctx, pt_state *st){
         [0-9] match number
         [a-z] match a-z
         [A-Z] match A-Z
-        for example:
+        for example 
         (R"((/Root\s+)([0-9]+\s+)([0-9]+\s+))");
         use \s+ out of () to exclude the space
     */
@@ -196,39 +195,22 @@ int parse_trailer(pt_context *ctx, pt_state *st){
 
     if(std::regex_search(main_root, match, root_pattern)){
         obj_num = std::stoi(match[2].str());
-        gen_num = std::stoi(match[3].str()); // im stupid right here sorry guys
+        gen_num = std::stoi(match[3].str());
     }
     // std::stoi convert from string to int
     // std::stol convert from string to long
-    st->xref->root_obj = obj_num;
+    st->xref->root_obj = obj_num; 
     st->xref->root_gen_num = gen_num;
     return st->xref->root_obj;
- } // this func is intended for parser
-
-
-
-// test local func
-int caller (pt_context *ctx, pt_state *st){
-    st->xref->find(ctx, st);
-    
-    int e = st->xref->dictionary(ctx, st);
-    if (e) printf("XREF dictionary built successfully!\n");
-    else printf("XREF dictionary failed!\n");
-
-    int d = st->xref->trailer(ctx, st); 
-        
-    return 1;
-}
-
-
+} // this func is intended for parser
 
 void main_xref (pt_state *st){
-    st->xref -> root_obj = 0;
-    st->xref -> find = find_xref_table;
-    st->xref -> is_valid_xref = valid_xref;
-    st->xref -> dictionary = dictionary_xref;
-    st->xref -> trailer =  parse_trailer;
-    st->xref -> call = caller;
-    st->xref -> main = main_xref;
+    st->xref->root_obj = 0;
+    st->xref->find = find_xref_table;
+    st->xref->is_valid_xref = valid_xref;
+    st->xref->dictionary = dictionary_xref;
+    st->xref->trailer =  parse_trailer;
+    st->xref->look = lookup_offset; 
+    st->xref-> main = main_xref;
 }
 

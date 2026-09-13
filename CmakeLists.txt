@@ -15,7 +15,8 @@ add_executable(app
     src/pdf/xref.cpp
     src/pation/state.c 
     src/pdf/page.cpp
-  )
+    src/pdf/parser.cpp
+)
 
 target_include_directories(
     app PRIVATE
